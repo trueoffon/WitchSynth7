@@ -1,0 +1,32 @@
+name: Build WitchSynth VST3
+
+# Запускается при каждом пуше в main и вручную кнопкой "Run workflow"
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Забрать код из репозитория
+        uses: actions/checkout@v4
+
+      - name: Настроить CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Конфигурация проекта (Release)
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Сборка VST3
+        run: cmake --build build --config Release --parallel
+
+      - name: Загрузить готовый .vst3 как артефакт
+        uses: actions/upload-artifact@v4
+        with:
+          name: WitchSynth-VST3-Windows
+          path: |
+            build/**/*.vst3
+          if-no-files-found: error
